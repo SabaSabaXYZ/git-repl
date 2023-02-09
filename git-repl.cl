@@ -1,4 +1,4 @@
-; sbcl --load git-skipper.cl
+; sbcl --load git-repl.cl
 
 (ql:quickload '("cl-utilities" "str"))
 
@@ -18,6 +18,15 @@
 
 (defun git (&rest arguments)
   (run-command (str:join " " (cons "git" arguments))))
+
+(defun status ()
+  (git "status"))
+
+(defun add-all ()
+  (git "add" "."))
+
+(defun commit ()
+  (git "commit" "-v"))
 
 (defun modified-files ()
   (git "diff" "--name-only"))
@@ -43,7 +52,7 @@
 (defun delete-merged-branches ()
   (mapcar #'delete-branch (git "branch" "--merged")))
 
-(defun make ()
+(defun make (executable-name)
   (progn
-    (load (compile-file "git-skipper.cl"))
-    (save-lisp-and-die "git-skipper.exe" :executable t)))
+    (load (compile-file "git-repl.cl"))
+    (save-lisp-and-die executable-name :executable t)))
