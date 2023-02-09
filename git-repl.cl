@@ -1,4 +1,4 @@
-; sbcl --load git-repl.cl
+; sbcl --load git-repl.cl --eval "(make)"
 
 (ql:quickload '("cl-utilities" "str"))
 
