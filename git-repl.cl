@@ -225,14 +225,10 @@
         (terpri)
         (force-output)))))
 
-(defun-public make (executable-name &key (source-file nil))
+(defun-public make (&key (executable-name *installation-file*) (source-file "git-repl.cl"))
   "Compiles the current state into an executable"
   (progn
     (if source-file
         (load (compile-file source-file))
         nil)
     (save-lisp-and-die executable-name :toplevel #'main :executable t)))
-
-(defun-public make-install (&key (source-file "git-repl.cl"))
-  "Compiles the current state into an executable and installs it to *installation-file*"
-  (make *installation-file* :source-file source-file))
