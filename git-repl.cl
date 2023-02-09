@@ -215,14 +215,25 @@
   "Executes the mergetool configured with git"
   (git "mergetool"))
 
-(defun interactive-skip-file ()
-  (write-line "interactive-skip-file"))
+(defparameter *skipped-files* (skipped-files))
+(defparameter *modified-files* (modified-files))
 
-(defun interactive-no-skip-file ()
-  (write-line "interactive-no-skip-file"))
+(defun handle-interactive-skip (action refresh-action listbox item-type)
+  (lambda ()
+    (progn
+      (let* ((items (if (eq item-type 'skipped) *skipped-files* *modified-files*))
+             (selected-items (mapcar (lambda (x) (if x (nth x items) nil)) (ltk:listbox-get-selection listbox))))
+        (funcall action selected-items))
+      (funcall refresh-action))))
 
-(defun refresh-interactive-skip ()
-  (write-line "refresh-interactive-skip"))
+(defun refresh-interactive-skip (skipped-file-list modified-file-list)
+  (lambda ()
+    (ltk:listbox-clear (ltk:listbox skipped-file-list))
+    (ltk:listbox-clear (ltk:listbox modified-file-list))
+    (setf *skipped-files* (skipped-files))
+    (setf *modified-files* (modified-files))
+    (ltk:listbox-append skipped-file-list *skipped-files*)
+    (ltk:listbox-append modified-file-list *modified-files*)))
 
 (defun-public interactive-skip ()
   (ltk:with-ltk ()
@@ -235,11 +246,11 @@
            (modified-files-label (make-instance 'ltk:label :text "Modified Files" :master modified-content))
            (skipped-file-list (make-instance 'ltk:scrolled-listbox :master skipped-content))
            (modified-file-list (make-instance 'ltk:scrolled-listbox :master modified-content))
-           (skip-button (make-instance 'ltk:button :text "Skip" :command #'interactive-skip-file :master button-content))
-           (no-skip-button (make-instance 'ltk:button :text "Unskip" :command #'interactive-no-skip-file :master button-content))
-           (refresh-button (make-instance 'ltk:button :text "Refresh" :command #'refresh-interactive-skip :master button-content)))
-      (ltk:listbox-append skipped-file-list (skipped-files))
-      (ltk:listbox-append modified-file-list (modified-files))
+           (refresh-action (refresh-interactive-skip skipped-file-list modified-file-list))
+           (skip-button (make-instance 'ltk:button :text "← Skip" :master button-content :command (handle-interactive-skip #'skip-file refresh-action modified-file-list 'modified)))
+           (no-skip-button (make-instance 'ltk:button :text "Unskip →" :master button-content :command (handle-interactive-skip #'no-skip-file refresh-action skipped-file-list 'skipped)))
+           (refresh-button (make-instance 'ltk:button :text "Refresh" :command refresh-action :master button-content)))
+      (funcall refresh-action)
 
       (ltk:configure content :padding "5 5 5 5")
 
