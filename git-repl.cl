@@ -37,16 +37,22 @@
   "Removes every empty line from a list of lines of text"
   (remove-if #'str:emptyp text-lines))
 
-(defun run-command (command)
-  (remove-empty
-    (mapcar #'str:trim
-            (str:lines
-              (uiop:run-program command :ignore-error-status t :force-shell t :input nil :output :string)
-              :omit-nulls t))))
+(defun run-command (command &key (list-output t))
+  (let ((output (uiop:run-program command :ignore-error-status t :force-shell t :input nil :output :string)))
+    (if list-output
+        (remove-empty (mapcar #'str:trim (str:lines output :omit-nulls t)))
+        output)))
+
+(defun-public run-git (arguments &key (list-output t))
+  "Runs an arbitrary git command. Provide the list of arguments as a list of strings, for example: (run-git '(\"add\" \"-i\"))
+  When :list-output is set to T (default), the output is provided as a list of strings.
+  When :list-output is set to NIL, the raw output is provided as a single string.
+  To use :list-output, provide it after the argument as follows: (run-git '(\"add\" \"-i\") :list-output nil)"
+  (run-command (str:join " " (cons "git" arguments)) :list-output list-output))
 
 (defun-public git (&rest arguments)
   "Runs an arbitrary git command. Separate each token as a string, for example: (git \"add\" \"-i\")"
-  (run-command (str:join " " (cons "git" arguments))))
+  (run-git arguments))
 
 (defun-public commands ()
   "Lists every public command. Use (describe 'command-name) for documentation."
