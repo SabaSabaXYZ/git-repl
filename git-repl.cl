@@ -30,29 +30,33 @@
        ,@body
        (skip-modified))))
 
+(defmacro without-config-do (&body body)
+  "Stashes your configuration, executes the provided body, then restores your configuration"
+  `(clean-working-directory
+     (progn
+       (stash-config)
+       ,@body
+       (pop-config))))
+
 (defun add-quotes (text)
   (format nil "\"~a\"" text))
 
-(defun remove-empty (text-lines)
-  "Removes every empty line from a list of lines of text"
-  (remove-if #'str:emptyp text-lines))
-
-(defun run-command (command &key (list-output t))
+(defun run-command (command &key (list-output nil))
   (let ((output (uiop:run-program command :ignore-error-status t :force-shell t :input nil :output :string)))
     (if list-output
-        (remove-empty (mapcar #'str:trim (str:lines output :omit-nulls t)))
+        (remove-if #'str:emptyp (mapcar #'str:trim (str:lines output :omit-nulls t)))
         output)))
 
-(defun-public run-git (arguments &key (list-output t))
+(defun-public run-git (arguments &key (list-output nil))
   "Runs an arbitrary git command. Provide the list of arguments as a list of strings, for example: (run-git '(\"add\" \"-i\"))
-  When :list-output is set to T (default), the output is provided as a list of strings.
-  When :list-output is set to NIL, the raw output is provided as a single string.
+  When :list-output is set to NIL (default), the raw output is provided as a single string.
+  When :list-output is set to T, the output is provided as a list of strings.
   To use :list-output, provide it after the argument as follows: (run-git '(\"add\" \"-i\") :list-output nil)"
   (run-command (str:join " " (cons "git" arguments)) :list-output list-output))
 
 (defun-public git (&rest arguments)
   "Runs an arbitrary git command. Separate each token as a string, for example: (git \"add\" \"-i\")"
-  (run-git arguments))
+  (run-git arguments :list-output t))
 
 (defun-public commands ()
   "Lists every public command. Use (describe 'command-name) for documentation."
@@ -165,7 +169,7 @@
 
 (defun-public config-diff (file-path)
   "Saves the current configuration to the specified file"
-  (config-do (str:to-file file-path (run-git '("diff") :list-output nil))))
+  (config-do (str:to-file file-path (run-git '("diff")))))
 
 (defun-public delete-branch (branch-name)
   "Deletes the given local branch name"
@@ -174,6 +178,14 @@
 (defun-public delete-merged-branches ()
   "Deletes every local branch covered by \'git branch --merged\'"
   (git-chunked-command "branch" "-d" (git "branch" "--merged")))
+
+(defun-public checkout (revision &key (without-config nil))
+  "Checks out the specified revision.
+  If :without-config is set to T (default is NIL), stashes your configuration before the checkout and pops the stash afterwards."
+  (if without-config
+      (without-config-do
+        (git "checkout" revision))
+      (git "checkout" revision)))
 
 (defun-public help ()
   "Prints out usage instructions for this REPL"
