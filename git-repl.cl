@@ -119,9 +119,10 @@
 (defun-public help ()
   "Prints out usage instructions for this REPL"
   (write-line "This is a Common Lisp REPL.")
-  (write-line "Execute (commands) for a list of commands.")
+  (write-line "Run (commands) for a list of commands.")
   (write-line "Use (describe 'command-name) for documentation on a given command.")
-  (write-line "Execute (help) to see these instructions again.")
+  (write-line "Run (help) to see these instructions again.")
+  (write-line "Run (exit) to exit gracefully.")
   nil)
 
 (defun main ()
