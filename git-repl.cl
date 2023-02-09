@@ -27,30 +27,28 @@
 
 (defmacro clean-working-directory (&body body)
   `(if (null (modified-files))
-       ,@body
+       (progn ,@body)
        (write-line "You have modified files. Please stash or commit your files before proceeding.")))
 
 (defmacro config-do (&body body)
   "Unskips your configuration, executes the provided body, then skips your configuration"
   `(clean-working-directory
-     (progn
-       (no-skip-all)
-       ,@body
-       (skip-modified))))
+     (no-skip-all)
+     ,@body
+     (skip-modified)))
 
 (defmacro without-config-do (&body body)
   "Stashes your configuration, executes the provided body, then restores your configuration"
   `(clean-working-directory
-     (progn
-       (stash-config)
-       ,@body
-       (pop-config))))
+     (stash-config)
+     ,@body
+     (pop-config)))
 
 (defmacro toggle-without-config (without-config &body body)
   "Handles the common pattern of toggling whether to execute a command within the context of without-config-do or not"
   `(if ,without-config
        (without-config-do ,@body)
-       ,@body))
+       (progn ,@body)))
 
 (defun add-quotes (text)
   (format nil "\"~a\"" text))
@@ -159,29 +157,26 @@
 (defun-public stash-config ()
   "Stashes your current configuration by first unskipping it and then stashing it. This operation fails if you have any modified files."
   (clean-working-directory
-    (progn
-      (write-line "Unskipping files...")
-      (no-skip-all)
-      (write-line "Stashing files...")
-      (save-stash))))
+    (write-line "Unskipping files...")
+    (no-skip-all)
+    (write-line "Stashing files...")
+    (save-stash)))
 
 (defun-public pop-config ()
   "Pops the stash and skips it to store it as your configuration. This operation fails if you have any modified files."
   (clean-working-directory
-    (progn
-      (write-line "Popping stash...")
-      (pop-stash)
-      (write-line "Skipping files...")
-      (skip-modified))))
+    (write-line "Popping stash...")
+    (pop-stash)
+    (write-line "Skipping files...")
+    (skip-modified)))
 
 (defun-public apply-config ()
   "Applies the stash and skips it to store it as your configuration. This operation fails if you have any modified files."
   (clean-working-directory
-    (progn
-      (write-line "Applying stash...")
-      (apply-stash)
-      (write-line "Skipping files...")
-      (skip-modified))))
+    (write-line "Applying stash...")
+    (apply-stash)
+    (write-line "Skipping files...")
+    (skip-modified)))
 
 (defun-public config-diff (file-path)
   "Saves the current configuration to the specified file"
