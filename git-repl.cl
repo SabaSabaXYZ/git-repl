@@ -4,7 +4,10 @@
 
 (in-package :cl-user)
 
-(defvar *grep* "findstr" "The name of the program used for searching. On Windows this is set to \'findstr\', but it may be changed to \'grep\' for Unix systems.")
+(defmacro defvar-public (name value &optional doc)
+  `(progn
+     (export ',name)
+     (defvar ,name ,value ,doc)))
 
 (defmacro defun-public (name arglist &body body)
   `(progn
@@ -15,6 +18,8 @@
   `(if (null (modified-files))
        (write-line "You have modified files. Please stash or commit your files before proceeding.")
        ,@body))
+
+(defvar-public *grep* "findstr" "The name of the program used for searching. On Windows this is set to \'findstr\', but it may be changed to \'grep\' for Unix systems.")
 
 (defun remove-empty (text-lines)
   "Removes every empty line from a list of lines of text"
@@ -31,6 +36,7 @@
   (run-command (str:join " " (cons "git" arguments))))
 
 (defun-public help ()
+  "Lists every public command. Use (describe 'command-name) for documentation."
   (do-external-symbols (sym)
     (format t "~a~%" sym)))
 
