@@ -19,9 +19,19 @@
        ,@body
        (write-line "You have modified files. Please stash or commit your files before proceeding.")))
 
-(defvar-public *grep* "findstr" "The name of the program used for searching. On Windows this is set to \'findstr\', but it may be changed to \'grep\' for Unix systems.")
+(defvar *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
 
-(defvar-public *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
+(defun make (executable-name)
+  "Compiles the current state into an executable"
+  (progn
+    (load (compile-file "git-repl.cl"))
+    (save-lisp-and-die executable-name :executable t)))
+
+(defun make-install ()
+  "Compiles the current state into an executable and installs it to *installation-file*"
+  (make *installation-file*))
+
+(defvar-public *grep* "findstr" "The name of the program used for searching. On Windows this is set to \'findstr\', but it may be changed to \'grep\' for Unix systems.")
 
 (defun remove-empty (text-lines)
   "Removes every empty line from a list of lines of text"
@@ -87,6 +97,10 @@
   "Pops the top stash entry"
   (git "stash" "pop"))
 
+(defun-public apply-stash ()
+  "Applies the top stash entry without getting rid of it"
+  (git "stash" "apply"))
+
 (defun-public stash-config ()
   "Stashes your current configuration by first unskipping it and then stashing it. This operation fails if you have any modified files."
   (clean-working-directory
@@ -101,6 +115,13 @@
       (pop-stash)
       (skip-modified))))
 
+(defun-public apply-config ()
+  "Applies the stash and skips it to store it as your configuration. This operation fails if you have any modified files."
+  (clean-working-directory
+    (progn
+      (apply-stash)
+      (skip-modified))))
+
 (defun-public delete-branch (branch-name)
   "Deletes the given local branch name"
   (git "branch" "-d" branch-name))
@@ -108,13 +129,3 @@
 (defun-public delete-merged-branches ()
   "Deletes every local branch covered by \'git branch --merged\'"
   (mapcar #'delete-branch (git "branch" "--merged")))
-
-(defun-public make (executable-name)
-  "Compiles the current state into an executable"
-  (progn
-    (load (compile-file "git-repl.cl"))
-    (save-lisp-and-die executable-name :executable t)))
-
-(defun-public make-install ()
-  "Compiles the current state into an executable and installs it to *installation-file*"
-  (make *installation-file*))
