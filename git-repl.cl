@@ -44,7 +44,7 @@
   "Runs an arbitrary git command. Separate each token as a string, for example: (git \"add\" \"-i\")"
   (run-command (str:join " " (cons "git" arguments))))
 
-(defun-public help ()
+(defun-public commands ()
   "Lists every public command. Use (describe 'command-name) for documentation."
   (do-external-symbols (sym)
     (format t "~a~%" sym)))
@@ -127,3 +127,13 @@
 (defun-public delete-merged-branches ()
   "Deletes every local branch covered by \'git branch --merged\'"
   (mapcar #'delete-branch (git "branch" "--merged")))
+
+(defun-public help ()
+  "Prints out usage instructions for this REPL"
+  (write-line "This is a Common Lisp REPL.")
+  (write-line "Execute (commands) for a list of commands.")
+  (write-line "Use (describe 'command-name) for documentation on a given command.")
+  (write-line "Execute (help) to see these instructions again.")
+  nil)
+
+(help)
