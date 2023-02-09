@@ -4,6 +4,11 @@
 
 (in-package :cl-user)
 
+(defmacro defun-public (name arglist &body body)
+  `(progn
+     (export ',name)
+     (defun ,name ,arglist ,@body)))
+
 (defvar *grep* "findstr")
 
 (defun remove-empty (text)
@@ -16,59 +21,63 @@
               (uiop:run-program command :ignore-error-status t :force-shell t :input nil :output :string)
               :omit-nulls t))))
 
-(defun git (&rest arguments)
+(defun-public git (&rest arguments)
   (run-command (str:join " " (cons "git" arguments))))
 
-(defun status ()
+(defun-public help ()
+  (do-external-symbols (sym)
+    (format t "~a~%" sym)))
+
+(defun-public status ()
   (git "status"))
 
-(defun add-all ()
+(defun-public add-all ()
   (git "add" "."))
 
-(defun commit ()
+(defun-public commit ()
   (git "commit" "-v"))
 
-(defun modified-files ()
+(defun-public modified-files ()
   (git "diff" "--name-only"))
 
-(defun skipped-files ()
+(defun-public skipped-files ()
   (mapcar (lambda (x) (str:substring 2 t x)) (git "ls-files" "-v" "|" *grep* "^S")))
 
-(defun skip-file (file-path)
+(defun-public skip-file (file-path)
   (git "update-index" "--skip-worktree" file-path))
 
-(defun no-skip-file (file-path)
+(defun-public no-skip-file (file-path)
   (git "update-index" "--no-skip-worktree" file-path))
 
-(defun skip-modified ()
+(defun-public skip-modified ()
   (mapcar #'skip-file (modified-files)))
 
-(defun no-skip-all ()
+(defun-public no-skip-all ()
   (mapcar #'no-skip-file (skipped-files)))
 
-(defun save-stash ()
+(defun-public save-stash ()
   (git "stash"))
 
-(defun pop-stash ()
+(defun-public pop-stash ()
   (git "stash" "pop"))
 
-(defun stash-config ()
+(defun-public stash-config ()
   (progn
     (no-skip-all)
     (save-stash)))
 
-(defun pop-config ()
+(defun-public pop-config ()
   (progn
     (pop-stash)
     (skip-modified)))
 
-(defun delete-branch (branch-name)
+(defun-public delete-branch (branch-name)
   (git "branch" "-d" branch-name))
 
-(defun delete-merged-branches ()
+(defun-public delete-merged-branches ()
   (mapcar #'delete-branch (git "branch" "--merged")))
 
-(defun make (executable-name)
+(defun-public make (executable-name)
   (progn
     (load (compile-file "git-repl.cl"))
     (save-lisp-and-die executable-name :executable t)))
