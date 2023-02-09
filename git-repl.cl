@@ -18,9 +18,7 @@
        (progn
          (,do-symbol-action (,sym)
                             (push (format ,print-symbols (if ,print-symbols "~a~%" "~a") ,sym) ,results))
-         (if ,print-symbols
-             nil
-             ,results)))))
+         (if ,print-symbols nil ,results)))))
 
 (defmacro defun-public (name arglist &body body)
   `(progn
