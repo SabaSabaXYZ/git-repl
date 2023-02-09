@@ -11,6 +11,7 @@
 
 (defvar-public *file-chunk-length* 10 "The number of files to operate on at a time for handle-file-paths")
 (defvar-public *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make)")
+(defvar-public *quiet-mode* nil "When set to T, disables any non-essential logging when executing a command")
 
 (defmacro print-or-collect-symbols (do-symbol-action &key (print-symbols t))
   (let ((sym (gensym)) (results (gensym)))
@@ -27,7 +28,9 @@
 
 (defmacro log-action (description &body body)
   `(progn
-     (write-line ,description)
+     (if (not *quiet-mode*)
+         (write-line ,description)
+         nil)
      ,@body))
 
 (defmacro clean-working-directory (&body body)
@@ -332,10 +335,23 @@
       (terpri)
       (force-output))))
 
+(defun execute-single-command (lisp-command)
+  (let ((result (eval (read-from-string lisp-command))))
+    (if *quiet-mode*
+        nil
+        (print result))))
+
+(defun process-args (initial-args)
+  (if (equal "-q" (car initial-args))
+      (progn
+        (setf *quiet-mode* t)
+        (cdr initial-args))
+      initial-args))
+
 (defun main ()
-  (let ((args (cdr *posix-argv*)))
+  (let ((args (process-args (cdr *posix-argv*))))
     (if args
-        (print (eval (read-from-string (str:join " " args))))
+        (execute-single-command (str:join " " args))
         (progn
           (help)
           (repl)))))
