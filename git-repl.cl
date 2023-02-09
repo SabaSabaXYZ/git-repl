@@ -201,6 +201,10 @@
   "Deletes the given local branch name"
   (git "branch" "-d" branch-name))
 
+(defun-public delete-branches (is-merged)
+  "Deletes every local branch covered by \'git branch --merged\' or \'git branch --no-merged\'"
+  (git-chunked-command "branch" "-d" (git "branch" (if is-merged "--merged" "--no-merged"))))
+
 (defun-public delete-merged-branches ()
   "Deletes every local branch covered by \'git branch --merged\'"
   (git-chunked-command "branch" "-d" (git "branch" "--merged")))
