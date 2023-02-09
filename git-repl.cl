@@ -25,6 +25,11 @@
      (export ',name)
      (defun ,name ,arglist ,@body)))
 
+(defmacro log-action (description &body body)
+  `(progn
+     (write-line ,description)
+     ,@body))
+
 (defmacro clean-working-directory (&body body)
   `(if (null (modified-files))
        (progn ,@body)
@@ -172,26 +177,20 @@
 (defun-public stash-config ()
   "Stashes your current configuration by first unskipping it and then stashing it. This operation fails if you have any modified files."
   (clean-working-directory
-    (write-line "Unskipping files...")
-    (no-skip-all)
-    (write-line "Stashing files...")
-    (save-stash)))
+    (log-action "Unskipping files..." (no-skip-all))
+    (log-action "Stashing files..." (save-stash))))
 
 (defun-public pop-config ()
   "Pops the stash and skips it to store it as your configuration. This operation fails if you have any modified files."
   (clean-working-directory
-    (write-line "Popping stash...")
-    (pop-stash)
-    (write-line "Skipping files...")
-    (skip-modified)))
+    (log-action "Popping stash..." (pop-stash))
+    (log-action "Skipping files..." (skip-modified))))
 
 (defun-public apply-config ()
   "Applies the stash and skips it to store it as your configuration. This operation fails if you have any modified files."
   (clean-working-directory
-    (write-line "Applying stash...")
-    (apply-stash)
-    (write-line "Skipping files...")
-    (skip-modified)))
+    (log-action "Applying stash..." (apply-stash))
+    (log-action "Skipping files..." (skip-modified))))
 
 (defun-public config-diff (file-path)
   "Saves the current configuration to the specified file"
