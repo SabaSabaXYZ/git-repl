@@ -250,10 +250,11 @@
            (skip-button (make-instance 'ltk:button :text "← Skip" :master button-content :command (handle-interactive-skip #'skip-file refresh-action modified-file-list 'modified)))
            (no-skip-button (make-instance 'ltk:button :text "Unskip →" :master button-content :command (handle-interactive-skip #'no-skip-file refresh-action skipped-file-list 'skipped)))
            (refresh-button (make-instance 'ltk:button :text "Refresh" :command refresh-action :master button-content)))
+      (ltk:configure (ltk:listbox skipped-file-list) :selectmode 'expanded)
+      (ltk:configure (ltk:listbox modified-file-list) :selectmode 'expanded)
       (funcall refresh-action)
 
       (ltk:configure content :padding "5 5 5 5")
-
       (ltk:grid-columnconfigure ltk:*tk* 0 :weight 1)
       (ltk:grid-rowconfigure ltk:*tk* 0 :weight 1)
 
