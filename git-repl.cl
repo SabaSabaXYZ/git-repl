@@ -163,9 +163,9 @@
       (write-line "Skipping files...")
       (skip-modified))))
 
-(defun-public config-diff ()
+(defun-public config-diff (file-path)
   "Saves the current configuration to the specified file"
-  (config-do (mapcar #'write-line (git "diff"))))
+  (config-do (str:to-file file-path (run-git '("diff") :list-output nil))))
 
 (defun-public delete-branch (branch-name)
   "Deletes the given local branch name"
