@@ -187,6 +187,20 @@
         (git "checkout" revision))
       (git "checkout" revision)))
 
+(defun-public reset-branch (revision &key (mode 'mixed) (without-config nil))
+  "Performs a reset to the specified revision.
+  The :mode must be either 'soft, 'mixed (default), or 'hard.
+  If :without-config is set to T (default is NIL), stashes your configuration before the checkout and pops the stash afterwards."
+  (let ((mode-string (cond
+                       ((eq mode 'soft) "--soft")
+                       ((eq mode 'mixed) "--mixed")
+                       ((eq mode 'hard) "--hard")
+                       (t (error "Mode must be either 'soft, 'mixed, or 'hard")))))
+    (if without-config
+        (without-config-do
+          (git "reset" mode-string revision))
+        (git "reset" mode-string revision))))
+
 (defun-public mergetool ()
   "Executes the mergetool configured with git"
   (git "mergetool"))
