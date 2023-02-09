@@ -21,6 +21,8 @@
 
 (defvar-public *grep* "findstr" "The name of the program used for searching. On Windows this is set to \'findstr\', but it may be changed to \'grep\' for Unix systems.")
 
+(defvar-public *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
+
 (defun remove-empty (text-lines)
   "Removes every empty line from a list of lines of text"
   (remove-if #'str:emptyp text-lines))
@@ -112,3 +114,7 @@
   (progn
     (load (compile-file "git-repl.cl"))
     (save-lisp-and-die executable-name :executable t)))
+
+(defun-public make-install ()
+  "Compiles the current state into an executable and installs it to *installation-file*"
+  (make *installation-file*))
