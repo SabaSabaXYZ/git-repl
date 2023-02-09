@@ -1,6 +1,6 @@
 ; sbcl --load git-repl.cl --eval "(make)"
 
-(ql:quickload '("cl-utilities" "str" "ltk"))
+(ql:quickload '("str" "ltk"))
 
 (in-package :cl-user)
 
