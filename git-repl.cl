@@ -142,6 +142,21 @@
   "Unskips every skipped file"
   (no-skip-file (skipped-files)))
 
+(defun handle-skip-file-pattern (skip-action files-action pattern predicate)
+  (funcall skip-action (remove-if-not (lambda (file-name) (funcall predicate pattern file-name)) (funcall files-action))))
+
+(defun-public skip-file-pattern (pattern &key (predicate #'str:ends-with-p))
+  "Skips every file with the specified pattern in the filename.
+  By default, the pattern is checked only at the end of the filename.
+  Use STR:STARTS-WITH-P or STR:CONTAINSP for different behaviour."
+  (handle-skip-file-pattern #'skip-file #'modified-files pattern predicate))
+
+(defun-public no-skip-file-pattern (pattern &key (predicate #'str:ends-with-p))
+  "Unskips every file with the specified pattern in the filename.
+  By default, the pattern is checked only at the end of the filename.
+  Use STR:STARTS-WITH-P or STR:CONTAINSP for different behaviour."
+  (handle-skip-file-pattern #'no-skip-file #'skipped-files pattern predicate))
+
 (defun-public save-stash ()
   "Stashes every modified file"
   (git "stash"))
