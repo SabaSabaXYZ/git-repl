@@ -1,3 +1,5 @@
+; sbcl --load git-skipper.cl
+
 (ql:quickload '("cl-utilities" "str"))
 
 (in-package :cl-user)
@@ -40,3 +42,8 @@
 
 (defun delete-merged-branches ()
   (mapcar #'delete-branch (git "branch" "--merged")))
+
+(defun make ()
+  (progn
+    (load (compile-file "git-skipper.cl"))
+    (save-lisp-and-die "git-skipper.exe" :executable t)))
