@@ -96,21 +96,27 @@
   "Stashes your current configuration by first unskipping it and then stashing it. This operation fails if you have any modified files."
   (clean-working-directory
     (progn
+      (write-line "Unskipping files...")
       (no-skip-all)
+      (write-line "Stashing files...")
       (save-stash))))
 
 (defun-public pop-config ()
   "Pops the stash and skips it to store it as your configuration. This operation fails if you have any modified files."
   (clean-working-directory
     (progn
+      (write-line "Popping stash...")
       (pop-stash)
+      (write-line "Skipping files...")
       (skip-modified))))
 
 (defun-public apply-config ()
   "Applies the stash and skips it to store it as your configuration. This operation fails if you have any modified files."
   (clean-working-directory
     (progn
+      (write-line "Applying stash...")
       (apply-stash)
+      (write-line "Skipping files...")
       (skip-modified))))
 
 (defun-public delete-branch (branch-name)
