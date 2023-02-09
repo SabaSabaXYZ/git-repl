@@ -35,9 +35,6 @@
 (defun no-skip-all ()
   (mapcar #'no-skip-file (skipped-files)))
 
-(defun status ()
-  (git "status"))
-
 (no-skip-all)
 (skip-modified)
 (modified-files)
