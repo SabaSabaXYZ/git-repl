@@ -23,11 +23,7 @@ On Windows, open Command Line or Powershell with administrator privileges, then 
 
     choco install -y sbcl magicsplat-tcl-tk
 
-Next, install Quicklisp using the following commands:
-
-    curl -O https://beta.quicklisp.org/quicklisp.lisp
-    sbcl --load quicklisp.lisp --eval (quicklisp-quickstart:install)
-
+Next, install Quicklisp by following the instructions here: <https://www.quicklisp.org/beta/#installation>
 You are now ready to compile Git REPL.
 
 By default, Git REPL is configured to install to `C:\bin\git-repl.exe`.
