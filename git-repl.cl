@@ -9,7 +9,7 @@
      (export ',name)
      (defvar ,name ,value ,doc)))
 
-(defvar-public *file-chunk-length* 10 "The number of files to operate on at a time for update-index")
+(defvar-public *file-chunk-length* 10 "The number of files to operate on at a time for handle-file-paths")
 (defvar-public *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
 
 (defmacro print-or-collect-symbols (do-symbol-action &key (print-symbols t))
