@@ -48,6 +48,11 @@
        ,@body
        (pop-config))))
 
+(defmacro toggle-without-config (without-config &body body)
+  `(if ,without-config
+       (without-config-do ,@body)
+       ,@body))
+
 (defun add-quotes (text)
   (format nil "\"~a\"" text))
 
@@ -194,10 +199,7 @@
 (defun-public checkout (revision &key (without-config nil))
   "Checks out the specified revision.
   If :without-config is set to T (default is NIL), stashes your configuration before the checkout and pops the stash afterwards."
-  (if without-config
-      (without-config-do
-        (git "checkout" revision))
-      (git "checkout" revision)))
+  (toggle-without-config without-config (git "checkout" revision)))
 
 (defun-public reset-branch (revision &key (mode 'mixed) (without-config nil))
   "Performs a reset to the specified revision.
@@ -208,10 +210,7 @@
                        ((eq mode 'mixed) "--mixed")
                        ((eq mode 'hard) "--hard")
                        (t (error "Mode must be either 'soft, 'mixed, or 'hard")))))
-    (if without-config
-        (without-config-do
-          (git "reset" mode-string revision))
-        (git "reset" mode-string revision))))
+    (toggle-without-config without-config (git "reset" mode-string revision))))
 
 (defun-public mergetool ()
   "Executes the mergetool configured with git"
