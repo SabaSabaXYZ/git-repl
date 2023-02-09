@@ -42,7 +42,7 @@
   (format nil "\"~a\"" text))
 
 (defun run-command (command &key (list-output nil))
-  (let ((output (uiop:run-program command :ignore-error-status t :force-shell t :input nil :output :string)))
+  (let ((output (uiop:run-program command :ignore-error-status t :force-shell t :input nil :output :string :error-output :output)))
     (if list-output
         (remove-if #'str:emptyp (mapcar #'str:trim (str:lines output :omit-nulls t)))
         output)))
