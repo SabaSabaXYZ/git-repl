@@ -14,6 +14,14 @@
        ,@body
        (write-line "You have modified files. Please stash or commit your files before proceeding.")))
 
+(defmacro config-do (&body body)
+  "Unskips your configuration, executes the provided body, then skips your configuration"
+  `(clean-working-directory
+     (progn
+       (no-skip-all)
+       ,@body
+       (skip-modified))))
+
 (defun add-quotes (text)
   (format nil "\"~a\"" text))
 
@@ -118,6 +126,10 @@
       (apply-stash)
       (write-line "Skipping files...")
       (skip-modified))))
+
+(defun-public config-diff (file-path)
+  "Saves the current configuration to the specified file"
+  (config-do (mapcar #'write-line (git "diff"))))
 
 (defun-public delete-branch (branch-name)
   "Deletes the given local branch name"
