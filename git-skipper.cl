@@ -35,7 +35,8 @@
 (defun no-skip-all ()
   (mapcar #'no-skip-file (skipped-files)))
 
-(no-skip-all)
-(skip-modified)
-(modified-files)
-(skipped-files)
+(defun delete-branch (branch-name)
+  (git "branch" "-d" branch-name))
+
+(defun delete-merged-branches ()
+  (mapcar #'delete-branch (git "branch" "--merged")))
