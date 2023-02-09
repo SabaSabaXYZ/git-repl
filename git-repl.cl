@@ -87,15 +87,20 @@
     collect (ldiff front next)
     while next))
 
-(defun handle-file-paths (arg)
+(defun-public handle-file-paths (arg)
+  "Accepts either a string or a list of strings. Returns a list of strings, each one surrounded by \", chunked in lists of length *file-chunk-length*"
   (typecase arg
-    (string '(add-quotes arg))
+    (string (list (add-quotes arg)))
     (list (mapcar (lambda (x) (str:join " " x)) (chunk-list *file-chunk-length* (mapcar #'add-quotes arg))))
     (t (error "Argument must be either a string or a list of strings."))))
 
-(defun-public update-index (command file-path)
+(defun-public git-chunked-command (command subcommand file-path)
   "Runs the specified command on the filepath or list of filepaths"
-  (mapcar (lambda (x) (git "update-index" command "--" x)) (handle-file-paths file-path)))
+  (mapcar (lambda (x) (git command subcommand "--" x)) (handle-file-paths file-path)))
+
+(defun-public update-index (command file-path)
+  "Runs the specified update-index command on the filepath or list of filepaths"
+  (git-chunked-command "update-index" command file-path))
 
 (defun-public skip-file (file-path)
   "Given a filepath or list of filepaths, skips the specified files"
@@ -162,7 +167,7 @@
 
 (defun-public delete-merged-branches ()
   "Deletes every local branch covered by \'git branch --merged\'"
-  (mapcar #'delete-branch (git "branch" "--merged")))
+  (git-chunked-command "branch" "-d" (git "branch" "--merged")))
 
 (defun-public help ()
   "Prints out usage instructions for this REPL"
