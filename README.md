@@ -44,6 +44,7 @@ You should now be able to run `git-repl` from any directory.
 Here is a list of global Git aliases (`git config --global -e`) that you may find useful for working with `git-repl`:
 
     [alias]
+        repl = !git-repl
         skip = !git-repl \\(interactive-skip\\)
         skip-all = !git-repl \\(skip-modified\\)
         unskip-all = !git-repl \\(no-skip-all\\)
@@ -54,3 +55,6 @@ Here is a list of global Git aliases (`git config --global -e`) that you may fin
         pop-config = !git-repl \\(pop-config\\)
         apply-config = !git-repl \\(apply-config\\)
         make-config = !git-repl \\(config-diff \\\"$1\\\"\\) #"
+        rebase-config = !git-repl \\(rebase \\\"$1\\\" :without-config t\\) #"
+        checkout-config = !git-repl \\(checkout \\\"$1\\\" :without-config t\\) #"
+        set-config = !git-repl \\(set-config \\\"$1\\\"\\) #"
