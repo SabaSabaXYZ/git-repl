@@ -4,11 +4,6 @@
 
 (in-package :cl-user)
 
-(defmacro defvar-public (name value &optional doc)
-  `(progn
-     (export ',name)
-     (defvar ,name ,value ,doc)))
-
 (defmacro defun-public (name arglist &body body)
   `(progn
      (export ',name)
@@ -30,8 +25,6 @@
 (defun make-install ()
   "Compiles the current state into an executable and installs it to *installation-file*"
   (make *installation-file*))
-
-(defvar-public *grep* "findstr" "The name of the program used for searching. On Windows this is set to \'findstr\', but it may be changed to \'grep\' for Unix systems.")
 
 (defun remove-empty (text-lines)
   "Removes every empty line from a list of lines of text"
@@ -71,7 +64,9 @@
 
 (defun-public skipped-files ()
   "Displays a list of skipped files"
-  (mapcar (lambda (x) (str:substring 2 t x)) (git "ls-files" "-v" "|" *grep* "^S")))
+  (mapcar
+    (lambda (x) (str:substring 2 t x))
+    (remove-if (lambda (x) (not (str:starts-with-p "S " x))) (git "ls-files" "-v"))))
 
 (defun-public skip-file (file-path)
   "Given a filepath, skips the specified file"
