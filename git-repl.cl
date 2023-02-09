@@ -37,6 +37,11 @@
   (do-external-symbols (sym)
     (format t "~a~%" sym)))
 
+(defun-public show-symbols ()
+  "Lists every available symbol. Use (describe 'symbol-name) for documentation."
+  (do-symbols (sym)
+    (format t "~a~%" sym)))
+
 (defun-public status ()
   "Displays the current status of the repository"
   (git "status"))
