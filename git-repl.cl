@@ -233,9 +233,12 @@
       (force-output))))
 
 (defun main ()
-  (progn
-    (help)
-    (repl)))
+  (let ((args (cdr *posix-argv*)))
+    (if args
+        (print (eval (read-from-string (str:join " " args))))
+        (progn
+          (help)
+          (repl)))))
 
 (defun-public make (&key (executable-name *installation-file*) (source-file "git-repl.cl"))
   "Compiles the current state into an executable"
