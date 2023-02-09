@@ -14,18 +14,6 @@
        ,@body
        (write-line "You have modified files. Please stash or commit your files before proceeding.")))
 
-(defvar *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
-
-(defun make (executable-name)
-  "Compiles the current state into an executable"
-  (progn
-    (load (compile-file "git-repl.cl"))
-    (save-lisp-and-die executable-name :executable t)))
-
-(defun make-install ()
-  "Compiles the current state into an executable and installs it to *installation-file*"
-  (make *installation-file*))
-
 (defun add-quotes (text)
   (format nil "\"~a\"" text))
 
@@ -136,4 +124,25 @@
   (write-line "Execute (help) to see these instructions again.")
   nil)
 
-(help)
+(defun main ()
+  (progn
+    (help)
+    (loop
+      (progn
+        (format t "> ")
+        (force-output)
+        (print (eval (read)))
+        (terpri)
+        (force-output)))))
+
+(defvar *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
+
+(defun make (executable-name)
+  "Compiles the current state into an executable"
+  (progn
+    (load (compile-file "git-repl.cl"))
+    (save-lisp-and-die executable-name :toplevel #'main :executable t)))
+
+(defun make-install ()
+  "Compiles the current state into an executable and installs it to *installation-file*"
+  (make *installation-file*))
