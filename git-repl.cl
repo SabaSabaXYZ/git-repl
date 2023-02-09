@@ -72,21 +72,27 @@
     (lambda (x) (str:substring 2 t x))
     (remove-if (lambda (x) (not (str:starts-with-p "S " x))) (git "ls-files" "-v"))))
 
+(defun handle-file-paths (arg)
+  (typecase arg
+    (string (add-quotes arg))
+    (list (str:join " " (mapcar #'add-quotes arg)))
+    (t (error "Argument must be either a string or a list of strings."))))
+
 (defun-public skip-file (file-path)
-  "Given a filepath, skips the specified file"
-  (git "update-index" "--skip-worktree" (add-quotes file-path)))
+  "Given a filepath or list of filepaths, skips the specified files"
+  (git "update-index" "--skip-worktree" "--" (handle-file-paths file-path)))
 
 (defun-public no-skip-file (file-path)
-  "Given a filepath, unskips the specified file"
-  (git "update-index" "--no-skip-worktree" (add-quotes file-path)))
+  "Given a filepath or list of filepaths, unskips the specified files"
+  (git "update-index" "--no-skip-worktree" "--" (handle-file-paths file-path)))
 
 (defun-public skip-modified ()
   "Skips every modified file"
-  (mapcar #'skip-file (modified-files)))
+  (skip-file (modified-files)))
 
 (defun-public no-skip-all ()
   "Unskips every skipped file"
-  (mapcar #'no-skip-file (skipped-files)))
+  (no-skip-file (skipped-files)))
 
 (defun-public save-stash ()
   "Stashes every modified file"
@@ -127,7 +133,7 @@
       (write-line "Skipping files...")
       (skip-modified))))
 
-(defun-public config-diff (file-path)
+(defun-public config-diff ()
   "Saves the current configuration to the specified file"
   (config-do (mapcar #'write-line (git "diff"))))
 
