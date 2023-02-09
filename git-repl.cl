@@ -4,6 +4,14 @@
 
 (in-package :cl-user)
 
+(defmacro defvar-public (name value &optional doc)
+  `(progn
+     (export ',name)
+     (defvar ,name ,value ,doc)))
+
+(defvar-public *file-chunk-length* 10 "The number of files to operate on at a time for update-index")
+(defvar-public *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
+
 (defmacro defun-public (name arglist &body body)
   `(progn
      (export ',name)
@@ -72,19 +80,30 @@
     (lambda (x) (str:substring 2 t x))
     (remove-if (lambda (x) (not (str:starts-with-p "S " x))) (git "ls-files" "-v"))))
 
+(defun chunk-list (len arglist)
+  (loop
+    for front = arglist then next
+    for next = (nthcdr len front)
+    collect (ldiff front next)
+    while next))
+
 (defun handle-file-paths (arg)
   (typecase arg
-    (string (add-quotes arg))
-    (list (str:join " " (mapcar #'add-quotes arg)))
+    (string '(add-quotes arg))
+    (list (mapcar (lambda (x) (str:join " " x)) (chunk-list *file-chunk-length* (mapcar #'add-quotes arg))))
     (t (error "Argument must be either a string or a list of strings."))))
+
+(defun-public update-index (command file-path)
+  "Runs the specified command on the filepath or list of filepaths"
+  (mapcar (lambda (x) (git "update-index" command "--" x)) (handle-file-paths file-path)))
 
 (defun-public skip-file (file-path)
   "Given a filepath or list of filepaths, skips the specified files"
-  (git "update-index" "--skip-worktree" "--" (handle-file-paths file-path)))
+  (update-index "--skip-worktree" file-path))
 
 (defun-public no-skip-file (file-path)
   "Given a filepath or list of filepaths, unskips the specified files"
-  (git "update-index" "--no-skip-worktree" "--" (handle-file-paths file-path)))
+  (update-index "--no-skip-worktree" file-path))
 
 (defun-public skip-modified ()
   "Skips every modified file"
@@ -165,14 +184,12 @@
         (terpri)
         (force-output)))))
 
-(defvar *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
-
-(defun make (executable-name)
+(defun-public make (executable-name)
   "Compiles the current state into an executable"
   (progn
     (load (compile-file "git-repl.cl"))
     (save-lisp-and-die executable-name :toplevel #'main :executable t)))
 
-(defun make-install ()
+(defun-public make-install ()
   "Compiles the current state into an executable and installs it to *installation-file*"
   (make *installation-file*))
