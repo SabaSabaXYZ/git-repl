@@ -29,10 +29,16 @@
 (defun no-skip-file (file-path)
   (git "update-index" "--no-skip-worktree" file-path))
 
+(defun skip-modified ()
+  (mapcar #'skip-file (modified-files)))
+
+(defun no-skip-all ()
+  (mapcar #'no-skip-file (skipped-files)))
+
 (defun status ()
   (git "status"))
 
-(no-skip-file "git-skipper.cl")
-(skip-file "git-skipper.cl")
+(no-skip-all)
+(skip-modified)
 (modified-files)
 (skipped-files)
