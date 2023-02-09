@@ -202,12 +202,16 @@
   (git "branch" "-d" branch-name))
 
 (defun-public delete-branches (is-merged)
-  "Deletes every local branch covered by \'git branch --merged\' or \'git branch --no-merged\'"
+  "Deletes every local branch covered by \'git branch --merged\' or \'git branch --no-merged\' based on the value of the argument \'is-merged\'."
   (git-chunked-command "branch" "-d" (git "branch" (if is-merged "--merged" "--no-merged"))))
 
 (defun-public delete-merged-branches ()
   "Deletes every local branch covered by \'git branch --merged\'"
-  (git-chunked-command "branch" "-d" (git "branch" "--merged")))
+  (delete-branches t))
+
+(defun-public delete-no-merged-branches ()
+  "Deletes every local branch covered by \'git branch --no-merged\'"
+  (delete-branches nil))
 
 (defun-public rebase (revision &key (without-config nil))
   "Performs a rebase
