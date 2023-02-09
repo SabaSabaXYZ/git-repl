@@ -26,6 +26,9 @@
   "Compiles the current state into an executable and installs it to *installation-file*"
   (make *installation-file*))
 
+(defun add-quotes (text)
+  (format nil "\"~a\"" text))
+
 (defun remove-empty (text-lines)
   "Removes every empty line from a list of lines of text"
   (remove-if #'str:emptyp text-lines))
@@ -70,11 +73,11 @@
 
 (defun-public skip-file (file-path)
   "Given a filepath, skips the specified file"
-  (git "update-index" "--skip-worktree" file-path))
+  (git "update-index" "--skip-worktree" (add-quotes file-path)))
 
 (defun-public no-skip-file (file-path)
   "Given a filepath, unskips the specified file"
-  (git "update-index" "--no-skip-worktree" file-path))
+  (git "update-index" "--no-skip-worktree" (add-quotes file-path)))
 
 (defun-public skip-modified ()
   "Skips every modified file"
