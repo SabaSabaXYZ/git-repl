@@ -10,7 +10,7 @@
      (defvar ,name ,value ,doc)))
 
 (defvar-public *file-chunk-length* 10 "The number of files to operate on at a time for handle-file-paths")
-(defvar-public *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
+(defvar-public *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make)")
 
 (defmacro print-or-collect-symbols (do-symbol-action &key (print-symbols t))
   (let ((sym (gensym)) (results (gensym)))
@@ -47,6 +47,7 @@
        (pop-config))))
 
 (defmacro toggle-without-config (without-config &body body)
+  "Handles the common pattern of toggling whether to execute a command within the context of without-config-do or not"
   `(if ,without-config
        (without-config-do ,@body)
        ,@body))
@@ -61,14 +62,14 @@
         output)))
 
 (defun-public run-git (arguments &key (list-output nil))
-  "Runs an arbitrary git command. Provide the list of arguments as a list of strings, for example: (run-git '(\"add\" \"-i\"))
+  "Runs an arbitrary git command. Provide the list of arguments as a list of strings, for example: (run-git '(\"add\" \".\"))
   When :list-output is set to NIL (default), the raw output is provided as a single string.
   When :list-output is set to T, the output is provided as a list of strings.
-  To use :list-output, provide it after the argument as follows: (run-git '(\"add\" \"-i\") :list-output nil)"
+  To use :list-output, provide it after the argument as follows: (run-git '(\"add\" \".\") :list-output nil)"
   (run-command (str:join " " (cons "git" arguments)) :list-output list-output))
 
 (defun-public git (&rest arguments)
-  "Runs an arbitrary git command. Separate each token as a string, for example: (git \"add\" \"-i\")"
+  "Runs an arbitrary git command. Separate each token as a string, for example: (git \"add\" \".\")"
   (run-git arguments :list-output t))
 
 (defun-public commands (&key (print-symbols t))
