@@ -199,6 +199,12 @@
   "Saves the current configuration to the specified file"
   (config-do (str:to-file file-path (run-git '("diff")))))
 
+(defun-public set-config (file-path)
+  "Applies the configuration from the specified file and skips it"
+  (clean-working-directory
+    (git "apply" file-path)
+    (skip-modified)))
+
 (defun-public delete-branch (branch-name)
   "Deletes the given local branch name"
   (git "branch" "-d" branch-name))
