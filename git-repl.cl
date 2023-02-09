@@ -46,6 +46,22 @@
 (defun no-skip-all ()
   (mapcar #'no-skip-file (skipped-files)))
 
+(defun save-stash ()
+  (git "stash"))
+
+(defun pop-stash ()
+  (git "stash" "pop"))
+
+(defun stash-config ()
+  (progn
+    (no-skip-all)
+    (save-stash)))
+
+(defun pop-config ()
+  (progn
+    (pop-stash)
+    (skip-modified)))
+
 (defun delete-branch (branch-name)
   (git "branch" "-d" branch-name))
 
