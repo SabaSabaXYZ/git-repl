@@ -195,6 +195,11 @@
   "Deletes every local branch covered by \'git branch --merged\'"
   (git-chunked-command "branch" "-d" (git "branch" "--merged")))
 
+(defun-public rebase (revision &key (without-config nil))
+  "Performs a rebase
+  If :without-config is set to T (default is NIL), stashes your configuration before the rebase and pops the stash afterwards."
+  (toggle-without-config without-config (git "rebase" revision)))
+
 (defun-public checkout (revision &key (without-config nil))
   "Checks out the specified revision.
   If :without-config is set to T (default is NIL), stashes your configuration before the checkout and pops the stash afterwards."
