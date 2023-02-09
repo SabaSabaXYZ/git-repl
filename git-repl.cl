@@ -4,15 +4,21 @@
 
 (in-package :cl-user)
 
+(defvar *grep* "findstr" "The name of the program used for searching. On Windows this is set to \'findstr\', but it may be changed to \'grep\' for Unix systems.")
+
 (defmacro defun-public (name arglist &body body)
   `(progn
      (export ',name)
      (defun ,name ,arglist ,@body)))
 
-(defvar *grep* "findstr")
+(defmacro clean-working-directory (&body body)
+  `(if (null (modified-files))
+       (write-line "You have modified files. Please stash or commit your files before proceeding.")
+       ,@body))
 
-(defun remove-empty (text)
-  (remove-if #'str:emptyp text))
+(defun remove-empty (text-lines)
+  "Removes every empty line from a list of lines of text"
+  (remove-if #'str:emptyp text-lines))
 
 (defun run-command (command)
   (remove-empty
@@ -62,22 +68,28 @@
   (git "stash" "pop"))
 
 (defun-public stash-config ()
-  (progn
-    (no-skip-all)
-    (save-stash)))
+  (clean-working-directory
+    (progn
+      (no-skip-all)
+      (save-stash))))
 
 (defun-public pop-config ()
-  (progn
-    (pop-stash)
-    (skip-modified)))
+  "Pops the stash and skips it to store it as your configuration"
+  (clean-working-directory
+    (progn
+      (pop-stash)
+      (skip-modified))))
 
 (defun-public delete-branch (branch-name)
+  "Deletes the given local branch name"
   (git "branch" "-d" branch-name))
 
 (defun-public delete-merged-branches ()
+  "Deletes every local branch covered by \'git branch --merged\'"
   (mapcar #'delete-branch (git "branch" "--merged")))
 
 (defun-public make (executable-name)
+  "Compiles the current state into an executable"
   (progn
     (load (compile-file "git-repl.cl"))
     (save-lisp-and-die executable-name :executable t)))
