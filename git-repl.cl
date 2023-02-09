@@ -12,6 +12,16 @@
 (defvar-public *file-chunk-length* 10 "The number of files to operate on at a time for update-index")
 (defvar-public *installation-file* "C:/bin/git-repl.exe" "The filepath to install to when running (make-install)")
 
+(defmacro print-or-collect-symbols (do-symbol-action &key (print-symbols t))
+  (let ((sym (gensym)) (results (gensym)))
+    `(let ((,results nil))
+       (progn
+         (,do-symbol-action (,sym)
+                            (push (format ,print-symbols (if ,print-symbols "~a~%" "~a") ,sym) ,results))
+         (if ,print-symbols
+             nil
+             ,results)))))
+
 (defmacro defun-public (name arglist &body body)
   `(progn
      (export ',name)
@@ -58,15 +68,17 @@
   "Runs an arbitrary git command. Separate each token as a string, for example: (git \"add\" \"-i\")"
   (run-git arguments :list-output t))
 
-(defun-public commands ()
-  "Lists every public command. Use (describe 'command-name) for documentation."
-  (do-external-symbols (sym)
-    (format t "~a~%" sym)))
+(defun-public commands (&key (print-symbols t))
+  "Lists every public symbol. Use (describe 'command-name) for documentation.
+  If :print-symbols is T (default), print every public symbol to standard output.
+  Otherwise, returns each symbol in a list."
+  (print-or-collect-symbols do-external-symbols :print-symbols print-symbols))
 
-(defun-public show-symbols ()
-  "Lists every available symbol. Use (describe 'symbol-name) for documentation."
-  (do-symbols (sym)
-    (format t "~a~%" sym)))
+(defun-public show-symbols (&key (print-symbols t))
+  "Lists every available symbol. Use (describe 'symbol-name) for documentation.
+  If :print-symbols is T (default), print every symbol to standard output.
+  Otherwise, returns each symbol in a list."
+  (print-or-collect-symbols do-symbols :print-symbols print-symbols))
 
 (defun-public status ()
   "Displays the current status of the repository"
