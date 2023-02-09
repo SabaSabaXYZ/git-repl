@@ -225,16 +225,19 @@
   (write-line "Run (exit) to exit gracefully.")
   nil)
 
+(defun repl ()
+  (loop
+    (progn
+      (format t "> ")
+      (force-output)
+      (print (eval (read)))
+      (terpri)
+      (force-output))))
+
 (defun main ()
   (progn
     (help)
-    (loop
-      (progn
-        (format t "> ")
-        (force-output)
-        (print (eval (read)))
-        (terpri)
-        (force-output)))))
+    (repl)))
 
 (defun-public make (&key (executable-name *installation-file*) (source-file "git-repl.cl"))
   "Compiles the current state into an executable"
