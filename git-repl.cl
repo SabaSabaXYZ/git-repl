@@ -215,8 +215,8 @@
   "Executes the mergetool configured with git"
   (git "mergetool"))
 
-(defparameter *skipped-files* (skipped-files))
-(defparameter *modified-files* (modified-files))
+(defparameter *skipped-files* (skipped-files) "Stores the currently skipped files for use by interactive-skip")
+(defparameter *modified-files* (modified-files) "Stores the currently modified files for use by interactive-skip")
 
 (defun handle-interactive-skip (action refresh-action listbox item-type)
   (lambda ()
@@ -236,6 +236,7 @@
     (ltk:listbox-append modified-file-list *modified-files*)))
 
 (defun-public interactive-skip ()
+  "Displays a window that lets you skip and unskip files interactively"
   (ltk:with-ltk ()
     (ltk:wm-title ltk:*tk* "Interactive Skipper")
     (let* ((content (make-instance 'ltk:frame))
@@ -250,8 +251,8 @@
            (skip-button (make-instance 'ltk:button :text "← Skip" :master button-content :command (handle-interactive-skip #'skip-file refresh-action modified-file-list 'modified)))
            (no-skip-button (make-instance 'ltk:button :text "Unskip →" :master button-content :command (handle-interactive-skip #'no-skip-file refresh-action skipped-file-list 'skipped)))
            (refresh-button (make-instance 'ltk:button :text "Refresh" :command refresh-action :master button-content)))
-      (ltk:configure (ltk:listbox skipped-file-list) :selectmode 'expanded)
-      (ltk:configure (ltk:listbox modified-file-list) :selectmode 'expanded)
+      (ltk:configure (ltk:listbox skipped-file-list) :selectmode 'multiple)
+      (ltk:configure (ltk:listbox modified-file-list) :selectmode 'multiple)
       (funcall refresh-action)
 
       (ltk:configure content :padding "5 5 5 5")
