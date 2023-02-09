@@ -187,6 +187,10 @@
         (git "checkout" revision))
       (git "checkout" revision)))
 
+(defun-public mergetool ()
+  "Executes the mergetool configured with git"
+  (git "mergetool"))
+
 (defun-public help ()
   "Prints out usage instructions for this REPL"
   (write-line "This is a Common Lisp REPL.")
