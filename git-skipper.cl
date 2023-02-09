@@ -2,9 +2,13 @@
 
 (in-package :cl-user)
 
+(defun remove-empty (seq)
+  (remove-if (cl-utilities:compose #'zerop #'length) seq))
+
 (defmacro git (&rest arguments)
-  `(mapcar (lambda (x) (string-trim " " x))
-           (cl-utilities:split-sequence #\newline (uiop:run-program (list "git" ,@arguments) :input nil :output :string))))
+  `(remove-empty
+     (mapcar (lambda (x) (string-trim " " x))
+             (cl-utilities:split-sequence #\newline (uiop:run-program (list "git" ,@arguments) :input nil :output :string)))))
 
 (defun modified-files ()
   (git "diff" "--name-only"))
