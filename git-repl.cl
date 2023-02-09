@@ -1,6 +1,6 @@
 ; sbcl --load git-repl.cl --eval "(make)"
 
-(ql:quickload '("cl-utilities" "str"))
+(ql:quickload '("cl-utilities" "str" "ltk"))
 
 (in-package :cl-user)
 
@@ -214,6 +214,67 @@
 (defun-public mergetool ()
   "Executes the mergetool configured with git"
   (git "mergetool"))
+
+(defun interactive-skip-file ()
+  (write-line "interactive-skip-file"))
+
+(defun interactive-no-skip-file ()
+  (write-line "interactive-no-skip-file"))
+
+(defun refresh-interactive-skip ()
+  (write-line "refresh-interactive-skip"))
+
+(defun-public interactive-skip ()
+  (ltk:with-ltk ()
+    (ltk:wm-title ltk:*tk* "Interactive Skipper")
+    (let* ((content (make-instance 'ltk:frame))
+           (skipped-content (make-instance 'ltk:frame :master content :borderwidth 2 :relief 'groove))
+           (modified-content (make-instance 'ltk:frame :master content :borderwidth 2 :relief 'groove))
+           (button-content (make-instance 'ltk:frame :master content :borderwidth 2 :relief 'groove))
+           (skipped-files-label (make-instance 'ltk:label :text "Skipped Files" :master skipped-content))
+           (modified-files-label (make-instance 'ltk:label :text "Modified Files" :master modified-content))
+           (skipped-file-list (make-instance 'ltk:scrolled-listbox :master skipped-content))
+           (modified-file-list (make-instance 'ltk:scrolled-listbox :master modified-content))
+           (skip-button (make-instance 'ltk:button :text "Skip" :command #'interactive-skip-file :master button-content))
+           (no-skip-button (make-instance 'ltk:button :text "Unskip" :command #'interactive-no-skip-file :master button-content))
+           (refresh-button (make-instance 'ltk:button :text "Refresh" :command #'refresh-interactive-skip :master button-content)))
+      (ltk:listbox-append skipped-file-list (skipped-files))
+      (ltk:listbox-append modified-file-list (modified-files))
+
+      (ltk:configure content :padding "5 5 5 5")
+
+      (ltk:grid-columnconfigure ltk:*tk* 0 :weight 1)
+      (ltk:grid-rowconfigure ltk:*tk* 0 :weight 1)
+
+      (ltk:grid-columnconfigure content 0 :weight 100)
+      (ltk:grid-columnconfigure content 1 :weight 1)
+      (ltk:grid-columnconfigure content 2 :weight 100)
+      (ltk:grid-rowconfigure content 0 :weight 1)
+
+      (ltk:grid-columnconfigure skipped-content 0 :weight 1)
+      (ltk:grid-rowconfigure skipped-content 0 :weight 1)
+      (ltk:grid-rowconfigure skipped-content 1 :weight 100)
+
+      (ltk:grid-columnconfigure modified-content 0 :weight 1)
+      (ltk:grid-rowconfigure modified-content 0 :weight 1)
+      (ltk:grid-rowconfigure modified-content 1 :weight 100)
+
+      (ltk:grid-columnconfigure button-content 0 :weight 1)
+      (ltk:grid-rowconfigure button-content 0 :weight 1)
+      (ltk:grid-rowconfigure button-content 1 :weight 1)
+      (ltk:grid-rowconfigure button-content 2 :weight 1)
+
+      (ltk:grid content 0 0 :sticky "nsew")
+      (ltk:grid skipped-content 0 0 :sticky "nsew")
+      (ltk:grid button-content 0 1 :sticky "nsew")
+      (ltk:grid modified-content 0 2 :sticky "nsew")
+      (ltk:grid skipped-files-label 0 0)
+      (ltk:grid modified-files-label 0 0)
+      (ltk:grid skipped-file-list 1 0 :sticky "nsew")
+      (ltk:grid modified-file-list 1 0 :sticky "nsew")
+      (ltk:grid skip-button 0 0)
+      (ltk:grid refresh-button 1 0)
+      (ltk:grid no-skip-button 2 0))))
 
 (defun-public help ()
   "Prints out usage instructions for this REPL"
