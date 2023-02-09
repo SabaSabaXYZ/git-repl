@@ -21,7 +21,7 @@
   (git "diff" "--name-only"))
 
 (defun skipped-files ()
-  (git "ls-files" "-v" "|" *grep* "^S"))
+  (mapcar (lambda (x) (str:substring 2 t x)) (git "ls-files" "-v" "|" *grep* "^S")))
 
 (defun skip-file (file-path)
   (git "update-index" "--skip-worktree" file-path))
