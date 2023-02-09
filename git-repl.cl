@@ -33,6 +33,7 @@
               :omit-nulls t))))
 
 (defun-public git (&rest arguments)
+  "Runs an arbitrary git command. Separate each token as a string, for example: (git \"add\" \"-i\")"
   (run-command (str:join " " (cons "git" arguments))))
 
 (defun-public help ()
@@ -41,46 +42,58 @@
     (format t "~a~%" sym)))
 
 (defun-public status ()
+  "Displays the current status of the repository"
   (git "status"))
 
 (defun-public add-all ()
+  "Adds every file under the current directory. Executes \'git add .\'"
   (git "add" "."))
 
 (defun-public commit ()
+  "Performs a verbose commit"
   (git "commit" "-v"))
 
 (defun-public modified-files ()
+  "Displays a list of modified, unstaged files"
   (git "diff" "--name-only"))
 
 (defun-public skipped-files ()
+  "Displays a list of skipped files"
   (mapcar (lambda (x) (str:substring 2 t x)) (git "ls-files" "-v" "|" *grep* "^S")))
 
 (defun-public skip-file (file-path)
+  "Given a filepath, skips the specified file"
   (git "update-index" "--skip-worktree" file-path))
 
 (defun-public no-skip-file (file-path)
+  "Given a filepath, unskips the specified file"
   (git "update-index" "--no-skip-worktree" file-path))
 
 (defun-public skip-modified ()
+  "Skips every modified file"
   (mapcar #'skip-file (modified-files)))
 
 (defun-public no-skip-all ()
+  "Unskips every skipped file"
   (mapcar #'no-skip-file (skipped-files)))
 
 (defun-public save-stash ()
+  "Stashes every modified file"
   (git "stash"))
 
 (defun-public pop-stash ()
+  "Pops the top stash entry"
   (git "stash" "pop"))
 
 (defun-public stash-config ()
+  "Stashes your current configuration by first unskipping it and then stashing it. This operation fails if you have any modified files."
   (clean-working-directory
     (progn
       (no-skip-all)
       (save-stash))))
 
 (defun-public pop-config ()
-  "Pops the stash and skips it to store it as your configuration"
+  "Pops the stash and skips it to store it as your configuration. This operation fails if you have any modified files."
   (clean-working-directory
     (progn
       (pop-stash)
