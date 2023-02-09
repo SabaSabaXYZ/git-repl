@@ -16,8 +16,8 @@
 
 (defmacro clean-working-directory (&body body)
   `(if (null (modified-files))
-       (write-line "You have modified files. Please stash or commit your files before proceeding.")
-       ,@body))
+       ,@body
+       (write-line "You have modified files. Please stash or commit your files before proceeding.")))
 
 (defvar-public *grep* "findstr" "The name of the program used for searching. On Windows this is set to \'findstr\', but it may be changed to \'grep\' for Unix systems.")
 
