@@ -201,17 +201,20 @@
   "Deletes the given local branch name"
   (git "branch" "-d" branch-name))
 
-(defun-public delete-branches (is-merged)
-  "Deletes every local branch covered by \'git branch --merged\' or \'git branch --no-merged\' based on the value of the argument \'is-merged\'."
-  (git-chunked-command "branch" "-d" (git "branch" (if is-merged "--merged" "--no-merged"))))
+(defun delete-branches (is-merged force-delete)
+  "Deletes every local branch covered by \'git branch --merged\' or \'git branch --no-merged\' based on the value of the argument \'is-merged\'.
+  When force-delete is true, forces the deletion of the branch even if it has unmerged changes."
+  (git-chunked-command "branch" (if force-delete "-D" "-d") (git "branch" (if is-merged "--merged" "--no-merged"))))
 
-(defun-public delete-merged-branches ()
-  "Deletes every local branch covered by \'git branch --merged\'"
-  (delete-branches t))
+(defun-public delete-merged-branches (&key (force-delete nil))
+  "Deletes every local branch covered by \'git branch --merged\'.
+  When :force-delete is set to T (default is NIL), forces the deletion of the branch even if it has unmerged changes."
+  (delete-branches t force-delete))
 
-(defun-public delete-no-merged-branches ()
-  "Deletes every local branch covered by \'git branch --no-merged\'"
-  (delete-branches nil))
+(defun-public delete-no-merged-branches (&key (force-delete nil))
+  "Deletes every local branch covered by \'git branch --no-merged\'.
+  When :force-delete is set to T (default is NIL), forces the deletion of the branch even if it has unmerged changes."
+  (delete-branches nil force-delete))
 
 (defun-public rebase (revision &key (without-config nil))
   "Performs a rebase
