@@ -225,9 +225,9 @@
   (delete-branches nil force-delete))
 
 (defun-public rebase (revision &key (without-config nil))
-  "Performs a rebase
+  "Performs an interactive rebase.
   If :without-config is set to T (default is NIL), stashes your configuration before the rebase and pops the stash afterwards."
-  (toggle-without-config without-config (git "rebase" revision)))
+  (toggle-without-config without-config (git "rebase" "-i" revision)))
 
 (defun-public checkout (revision &key (without-config nil))
   "Checks out the specified revision.
