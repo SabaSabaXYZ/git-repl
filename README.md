@@ -29,7 +29,7 @@ You are now ready to compile Git REPL.
 By default, Git REPL is configured to install to `C:\bin\git-repl.exe`.
 To proceed with installing to this location, run:
 
-    sbcl --load git-repl.cl --eval (make)
+    sbcl --load git-repl.cl --eval "(make)"
 
 Otherwise, run:
 
