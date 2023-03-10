@@ -334,7 +334,7 @@
 
 (defun repl ()
   (loop
-    (progn
+    (ignore-errors
       (format t "> ")
       (force-output)
       (print (eval (read)))
